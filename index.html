@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDoApp</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="flex">
+      <h3>welcome back,</h3>
+      <blockquote contenteditable="true">...</blockquote>
+    </header>
+
+    <main>
+      <section style="display: block">
+        <h3>inputs</h3>
+        <input type="text" id="newUserTask" placeholder="add a new task" />
+        <!-- <label for="cat-select"></label> -->
+        <select name="categories" id="categories-select">
+          <!-- <option value="">- please select a category -</option>
+          <option value="misc">Default</option>
+          <option value="personal">Personal</option>
+          <option value="work">Work</option> -->
+        </select>
+        <input type="submit" id="submitTask" />
+        <br />
+        <br />
+        <input type="text" id="newUserCat" placeholder="create a category" />
+        <input type="submit" id="submitCategory" />
+      </section>
+
+      <section>
+        <h3>filters</h3>
+        <div class="flex" id="filters-select">
+          <!-- <button type="button" class="filter__button" data-cat="misc">
+            misc <span>x</span>
+          </button>
+          <button type="button" class="filter__button" data-cat="personal">
+            personal nw
+          </button> -->
+        </div>
+      </section>
+
+      <section>
+        <h3>list</h3>
+        <ul id="masterList">
+          <!-- <li>do a list</li> -->
+          <!-- <li class="checked" data-cat="misc">
+            create a list<span class="close"></span>
+          </li>
+          <li class="" data-cat="misc">
+            display a list<span class="close"></span>
+          </li>
+          <li class="" data-cat="personal">
+            buy apples !<span class="close"></span>
+          </li> -->
+        </ul>
+      </section>
+
+      <section>
+        <h4>analytics</h4>
+        <hr />
+      </section>
+    </main>
+  </body>
+</html>
+
+<script>
+  "use strict";
+  // pointers
+  const masterList = document.querySelector("#masterList");
+  const categoriesSelect = document.querySelector("#categories-select");
+  const filtersSelect = document.querySelector("#filters-select");
+  const createTask = document.querySelector("#submitTask");
+  const createCategory = document.querySelector("#submitCategory");
+
+  // MODEL
+  // globals
+  const categories = ["misc", "personal", "work"];
+  const list = [
+    {
+      task: "create a list",
+      category: "misc",
+      complete: true,
+    },
+    {
+      task: "display the list",
+      category: "misc",
+      complete: false,
+    },
+    {
+      task: "buy apples",
+      category: "personal",
+      complete: true,
+    },
+  ];
+
+  ////////////////////
+  ////////////////////
+  // init app
+  renderCategorySelect(categories);
+  renderfilterBy(categories);
+  renderList(list);
+  ////////////////////
+  ////////////////////
+
+  ////////////////////
+  // VIEWs
+  //  to-do-list
+  function renderList(list) {
+    // existing html
+    masterList.innerHTML = "";
+    // model obj
+    list.forEach((el) => {
+      // check task status
+      let style = el.complete === true ? "checked" : "";
+
+      masterList.insertAdjacentHTML(
+        "beforeend",
+        `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      );
+
+      //   masterList.insertAdjacentHTML(
+      //     "beforeend",
+      //     `<li class='${style} flex split' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      //   );
+    });
+  }
+
+  //   <span class='close'>\u00D7</span>
+
+  //  categories-select-list
+  function renderCategorySelect(categories) {
+    categoriesSelect.innerHTML =
+      "<option value=''>- please select a category -</option>";
+    categories.forEach((el) => {
+      categoriesSelect.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${el}">${el}</option>`
+      );
+    });
+  }
+  //  filters-list
+  function renderfilterBy(categories) {
+    // existing html
+    filtersSelect.innerHTML = "";
+    categories.forEach((el) => {
+      filtersSelect.insertAdjacentHTML(
+        "beforeend",
+        `<button type='button' class='filter__button' data-cat='${el}'>
+                    ${el}
+                  </button>`
+      );
+    });
+  }
+
+  ////////////////////
+  // CONTROLLERs
+  //  add task to list, update VIEWs
+  createTask.addEventListener("click", () => {
+    const task = document.querySelector("#newUserTask");
+    const categorySelect = document.querySelector("#categories-select");
+    const newTask = {
+      task: task.value,
+      category: categorySelect.value,
+      complete: false,
+    };
+    // model
+    list.unshift(newTask);
+    // view
+    renderList(list);
+    // clear inputs
+    task.value = categorySelect.value = "";
+  });
+
+  //  add a custom cat, update VIEWs
+  createCategory.addEventListener("click", () => {
+    const category = document.querySelector("#newUserCat");
+    const newCategory = category.value;
+
+    if (newCategory === "") {
+      alert("please enter a valid value!");
+    }
+    if (newCategory !== "") {
+      // model
+      categories.push(newCategory);
+      // view
+      category.value = "";
+      renderCategorySelect(categories);
+      renderfilterBy(categories);
+      console.log(categories);
+    }
+  });
+
+  // filterBy list, update VIEWs
+  filtersSelect.addEventListener("click", function (e) {
+    // guard? user clicks outside of button error
+    let target = e.target.closest(".filter__button");
+    const chosenFilter = target.dataset.cat;
+    const filteredList = list.filter(
+      (filterBy) => filterBy.category === chosenFilter
+    );
+    // view
+    renderList(filteredList);
+  });
+
+  // toggle li
+  masterList.addEventListener("click", function (e) {
+    let string = e.target.innerHTML.slice(0, -27);
+    console.log(string);
+    // update VIEW
+    if (e.target.tagName === "LI") {
+      e.target.classList.toggle("checked");
+    }
+    // update MODEL
+    list.forEach((el) => {
+      if (el.task.match(string)) {
+        // toggle boolean value
+        let curBool = el.complete;
+        el.complete = !curBool;
+      }
+    });
+  });
+
+  function calcAnalytics() {}
+
+  function updateDOM() {}
+
+  //
+  // REQUIREMENTS
+  //
+  // ✅ task input
+  // ✅ display tasks
+  //
+  // ✅ custom category input
+  // ✅ show custom cat in categories dropdown (hot reload data?)
+  // ✅ show custom category as filters
+  // ✅ filter list by custom categories (problem event delagation for new buttons)
+  //
+  // ✅ toggle a task (complete/incomplete)
+  // remove a task
+  // remove a category (auto or remove button?)
+  //
+  // persist tasks / custom cats / input data
+  // logic to prompt when list is empty
+  //
+  // task analytics
+  // style
+  // micro-animations
+</script>
