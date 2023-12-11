@@ -8,7 +8,7 @@
   </head>
   <body>
     <header class="flex">
-      <h3>welcome back, ,mate</h3>
+      <h3>welcome back, repo</h3>
       <blockquote contenteditable="true">...</blockquote>
     </header>
 
@@ -32,13 +32,12 @@
 
       <section>
         <h3>filters</h3>
-        <div class="flex" id="filters-select">
-          <!-- <button type="button" class="filter__button" data-cat="misc">
-            misc <span>x</span>
-          </button>
-          <button type="button" class="filter__button" data-cat="personal">
-            personal nw
-          </button> -->
+
+        <div class="flex">
+          <div>
+            <button type="button" id="filters-remove">n/a</button>
+          </div>
+          <div id="filters-select"></div>
         </div>
       </section>
 
@@ -46,14 +45,16 @@
         <h3>list</h3>
         <ul id="masterList">
           <!-- <li>do a list</li> -->
-          <!-- <li class="checked" data-cat="misc">
-            create a list<span class="close"></span>
+          <!-- <li data-cat="misc">
+            <span class="listItem checked">style test 001</span>
+            <span class="close"></span>
           </li>
           <li class="" data-cat="misc">
-            display a list<span class="close"></span>
+            <span class="listItem">style test 0000002</span>
+            <span class="close"></span>
           </li>
           <li class="" data-cat="personal">
-            buy apples !<span class="close"></span>
+            style test #3<span class="close"></span>
           </li> -->
         </ul>
       </section>
@@ -72,13 +73,14 @@
   const masterList = document.querySelector("#masterList");
   const categoriesSelect = document.querySelector("#categories-select");
   const filtersSelect = document.querySelector("#filters-select");
+  const filtersRemove = document.querySelector("#filters-remove");
   const createTask = document.querySelector("#submitTask");
   const createCategory = document.querySelector("#submitCategory");
 
   // MODEL
   // globals
   const categories = ["misc", "personal", "work"];
-  const list = [
+  let list = [
     {
       task: "create a list",
       category: "misc",
@@ -91,10 +93,16 @@
     },
     {
       task: "buy apples",
+      category: "misc",
+      complete: true,
+    },
+    {
+      task: "buy soup",
       category: "personal",
       complete: true,
     },
   ];
+  let curState = false;
 
   ////////////////////
   ////////////////////
@@ -108,27 +116,6 @@
   ////////////////////
   // VIEWs
   //  to-do-list
-  function renderList(list) {
-    // existing html
-    masterList.innerHTML = "";
-    // model obj
-    list.forEach((el) => {
-      // check task status
-      let style = el.complete === true ? "checked" : "";
-
-      masterList.insertAdjacentHTML(
-        "beforeend",
-        `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
-      );
-
-      //   masterList.insertAdjacentHTML(
-      //     "beforeend",
-      //     `<li class='${style} flex split' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
-      //   );
-    });
-  }
-
-  //   <span class='close'>\u00D7</span>
 
   //  categories-select-list
   function renderCategorySelect(categories) {
@@ -155,20 +142,48 @@
     });
   }
 
+  function renderList(list) {
+    // existing html
+    masterList.innerHTML = "";
+    // model obj
+    list.forEach((el) => {
+      // check task status
+      let style = el.complete === true ? "checked" : "";
+      // new html
+      masterList.insertAdjacentHTML(
+        "beforeend",
+        `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      );
+    });
+  }
+
+  // function renderListWithState(list, curState) {
+  //   let aFilteredList = list.filter((el) => el.category === curState);
+  //   // console.log(aFilteredList);
+  //   renderList(aFilteredList);
+  // }
+
+  // THIS IS NOT QUITE MODEL VIEW :(
+  // function renderListWithState(list, curState) {
+  //   let aFilteredList = list.filter((el) => el.category === curState);
+  //   // console.log(aFilteredList);
+  //   renderList(aFilteredList);
+  // }
+
   ////////////////////
   // CONTROLLERs
   //  add task to list, update VIEWs
   createTask.addEventListener("click", () => {
     const task = document.querySelector("#newUserTask");
     const categorySelect = document.querySelector("#categories-select");
+    // MODEL
     const newTask = {
       task: task.value,
       category: categorySelect.value,
       complete: false,
     };
-    // model
     list.unshift(newTask);
-    // view
+    // VIEW
     renderList(list);
     // clear inputs
     task.value = categorySelect.value = "";
@@ -183,9 +198,9 @@
       alert("please enter a valid value!");
     }
     if (newCategory !== "") {
-      // model
+      // MODEL
       categories.push(newCategory);
-      // view
+      // VIEW
       category.value = "";
       renderCategorySelect(categories);
       renderfilterBy(categories);
@@ -195,32 +210,67 @@
 
   // filterBy list, update VIEWs
   filtersSelect.addEventListener("click", function (e) {
-    // guard? user clicks outside of button error
     let target = e.target.closest(".filter__button");
-    const chosenFilter = target.dataset.cat;
-    const filteredList = list.filter(
+    // guard
+    if (!target) {
+      return;
+    }
+    let chosenFilter = target.dataset.cat;
+    // GLOBAL state
+    curState = chosenFilter;
+
+    // MODEL
+    let filteredList = list.filter(
       (filterBy) => filterBy.category === chosenFilter
     );
-    // view
+    // renderListWithState(list, curState);
+
+    // VIEW
     renderList(filteredList);
   });
 
-  // toggle li
+  // remove filters, update VIEWs
+  filtersRemove.addEventListener("click", function (e) {
+    // MODEL
+    curState = false;
+    // VIEW
+    renderList(list);
+  });
+
+  // toggle task status, remove tasks, spdate VIEWs
   masterList.addEventListener("click", function (e) {
-    let string = e.target.innerHTML.slice(0, -27);
-    console.log(string);
-    // update VIEW
-    if (e.target.tagName === "LI") {
-      e.target.classList.toggle("checked");
+    let target = e.target;
+    let string = target.textContent;
+    // when close/child is clicked
+    let li = target.closest("li");
+
+    // target list
+    if (target.tagName === "LI") {
+      // VIEW
+      target.classList.toggle("checked");
+      // MODEL
+      list.forEach((el) => {
+        if (el.task.match(string)) {
+          // toggle boolean value
+          let curBool = el.complete;
+          el.complete = !curBool;
+        }
+      });
     }
-    // update MODEL
-    list.forEach((el) => {
-      if (el.task.match(string)) {
-        // toggle boolean value
-        let curBool = el.complete;
-        el.complete = !curBool;
+    // target close buttons
+    if (target.classList.contains("close")) {
+      // MODEL
+      list = list.filter((el) => el.task != li.textContent);
+      // VIEWs
+      if (!curState) {
+        renderList(list);
       }
-    });
+      if (curState) {
+        let withFilter = list.filter((el) => el.category === curState);
+        renderList(withFilter);
+        // renderListWithState(list, curState);
+      }
+    }
   });
 
   function calcAnalytics() {}
@@ -248,4 +298,11 @@
   // task analytics
   // style
   // micro-animations
+
+  // BUGS / extra functionality
+  //
+  // remove button calls renderList(list)
+  // this ignores filters which should maintain state
+  //
+  // do not allow duplicate list items?
 </script>
