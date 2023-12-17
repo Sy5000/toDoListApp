@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ToDoApp</title>
+    <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <header class="flex">
+    <!-- <header class="flex">
       <h3>welcome back, repo</h3>
       <blockquote contenteditable="true">...</blockquote>
-    </header>
-
+    </header> -->
     <main>
-      <section style="display: block">
-        <h3>inputs</h3>
+      <section id="dash">
+        <h1>hello mate.</h1>
+        <p>what would you like to do today?</p>
         <input type="text" id="newUserTask" placeholder="add a new task" />
         <!-- <label for="cat-select"></label> -->
         <select name="categories" id="categories-select">
@@ -25,24 +26,22 @@
         </select>
         <input type="submit" id="submitTask" />
         <br />
-        <br />
         <input type="text" id="newUserCat" placeholder="create a category" />
         <input type="submit" id="submitCategory" />
       </section>
 
-      <section>
-        <h3>filters</h3>
+      <section id="filters">
+        <!-- <h2>filters</h2> -->
 
         <div class="flex">
           <div>
-            <button type="button" id="filters-remove">n/a</button>
+            <button type="button" id="filters-remove">view all</button>
           </div>
           <div id="filters-select"></div>
         </div>
       </section>
 
-      <section>
-        <h3>list</h3>
+      <section id="list">
         <ul id="masterList">
           <!-- <li>do a list</li> -->
           <!-- <li data-cat="misc">
@@ -59,9 +58,13 @@
         </ul>
       </section>
 
-      <section>
-        <h4>analytics</h4>
+      <section id="footer">
         <hr />
+        <!-- <h4>Analytics</h4> -->
+        <div class="flex split">
+          <p id="analytics">4/5 tasks complete</p>
+          <a href="#">clear all</a>
+        </div>
       </section>
     </main>
   </body>
@@ -70,12 +73,13 @@
 <script>
   "use strict";
   // pointers
-  const masterList = document.querySelector("#masterList");
+  const createTask = document.querySelector("#submitTask");
+  const createCategory = document.querySelector("#submitCategory");
   const categoriesSelect = document.querySelector("#categories-select");
   const filtersSelect = document.querySelector("#filters-select");
   const filtersRemove = document.querySelector("#filters-remove");
-  const createTask = document.querySelector("#submitTask");
-  const createCategory = document.querySelector("#submitCategory");
+  const analytics = document.querySelector("#analytics");
+  const masterList = document.querySelector("#masterList");
 
   // MODEL
   // globals
@@ -97,19 +101,36 @@
       complete: true,
     },
     {
-      task: "buy soup",
-      category: "personal",
+      task: "buy pens",
+      category: "work",
+      complete: true,
+    },
+    {
+      task: "buy laptop",
+      category: "work",
+      complete: true,
+    },
+    {
+      task: "buy ties",
+      category: "work",
+      complete: true,
+    },
+    {
+      task: "buy moleskine",
+      category: "work",
       complete: true,
     },
   ];
-  let curState = false;
+  let curState;
 
   ////////////////////
   ////////////////////
   // init app
+  curState = false;
   renderCategorySelect(categories);
-  renderfilterBy(categories);
+  renderfilterBy(categories, curState);
   renderList(list);
+  calcAnalytics(list);
   ////////////////////
   ////////////////////
 
@@ -129,19 +150,21 @@
     });
   }
   //  filters-list
-  function renderfilterBy(categories) {
+  function renderfilterBy(categories, curState) {
+    console.log(curState);
     // existing html
     filtersSelect.innerHTML = "";
     categories.forEach((el) => {
+      let state = curState === el ? "active" : "";
       filtersSelect.insertAdjacentHTML(
         "beforeend",
-        `<button type='button' class='filter__button' data-cat='${el}'>
+        `<button type='button' class='filter__button ${state}' data-cat='${el}'>
                     ${el}
                   </button>`
       );
     });
   }
-
+  //  master list
   function renderList(list) {
     // existing html
     masterList.innerHTML = "";
@@ -156,19 +179,6 @@
       );
     });
   }
-
-  // function renderListWithState(list, curState) {
-  //   let aFilteredList = list.filter((el) => el.category === curState);
-  //   // console.log(aFilteredList);
-  //   renderList(aFilteredList);
-  // }
-
-  // THIS IS NOT QUITE MODEL VIEW :(
-  // function renderListWithState(list, curState) {
-  //   let aFilteredList = list.filter((el) => el.category === curState);
-  //   // console.log(aFilteredList);
-  //   renderList(aFilteredList);
-  // }
 
   ////////////////////
   // CONTROLLERs
@@ -203,8 +213,7 @@
       // VIEW
       category.value = "";
       renderCategorySelect(categories);
-      renderfilterBy(categories);
-      console.log(categories);
+      renderfilterBy(categories, curState);
     }
   });
 
@@ -215,17 +224,11 @@
     if (!target) {
       return;
     }
-    let chosenFilter = target.dataset.cat;
     // GLOBAL state
-    curState = chosenFilter;
-
-    // MODEL
-    let filteredList = list.filter(
-      (filterBy) => filterBy.category === chosenFilter
-    );
-    // renderListWithState(list, curState);
-
+    curState = target.dataset.cat;
     // VIEW
+    renderfilterBy(categories, curState);
+    const filteredList = applyFilter(list, curState);
     renderList(filteredList);
   });
 
@@ -234,6 +237,7 @@
     // MODEL
     curState = false;
     // VIEW
+    renderfilterBy(categories, curState);
     renderList(list);
   });
 
@@ -244,7 +248,7 @@
     // when close/child is clicked
     let li = target.closest("li");
 
-    // target list
+    // target list items
     if (target.tagName === "LI") {
       // VIEW
       target.classList.toggle("checked");
@@ -266,14 +270,24 @@
         renderList(list);
       }
       if (curState) {
-        let withFilter = list.filter((el) => el.category === curState);
-        renderList(withFilter);
-        // renderListWithState(list, curState);
+        const filteredList = applyFilter(list, curState);
+        renderList(filteredList);
       }
     }
+    calcAnalytics(list);
   });
 
-  function calcAnalytics() {}
+  // HELPERS
+  function applyFilter(list, curState) {
+    return list.filter((el) => el.category === curState);
+  }
+
+  function calcAnalytics(list) {
+    let complete = list.filter((el) => el.complete === true);
+    console.log(complete.length, " / ", list.length);
+    analytics.innerHTML =
+      complete.length + " / " + list.length + " tasks complete ";
+  }
 
   function updateDOM() {}
 
@@ -289,14 +303,14 @@
   // ✅ filter list by custom categories (problem event delagation for new buttons)
   //
   // ✅ toggle a task (complete/incomplete)
-  // remove a task
+  // ✅ remove a task
   // remove a category (auto or remove button?)
   //
   // persist tasks / custom cats / input data
   // logic to prompt when list is empty
   //
   // task analytics
-  // style
+  // ✅ style
   // micro-animations
 
   // BUGS / extra functionality
