@@ -11,6 +11,17 @@ const masterList = document.querySelector("#masterList");
 
 const catInput = document.querySelector(".catInput");
 
+// micro-animation
+//Animation in infinite loop
+
+let svgContainer = document.querySelector(".bodymovinanim");
+let animItem = bodymovin.loadAnimation({
+  wrapper: svgContainer,
+  animType: "svg",
+  loop: true,
+  path: "https://raw.githubusercontent.com/thesvbd/Lottie-examples/master/assets/animations/loading.json",
+});
+
 // MODEL
 // globals
 let categories = ["general", "personal", "work"];
@@ -84,7 +95,7 @@ function renderCategorySelect(categories) {
 
 //  filters-list
 function renderfilterBy(categories, curState) {
-  console.log(curState);
+  console.log("current state var", curState);
   // existing html
   filtersSelect.innerHTML = "";
   // add active class
@@ -112,7 +123,9 @@ function renderList(list) {
     // new html
     masterList.insertAdjacentHTML(
       "beforeend",
-      `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      `<li class='${style}' data-cat='${el.category}'><span class="bodymovinanim">tick</span>
+      ${el.task}
+      <span class='close'></span></li>`
     );
   });
 }
@@ -242,6 +255,7 @@ filtersSelect.addEventListener("click", function (e) {
 
 // toggle task status, remove tasks, spdate VIEWs
 masterList.addEventListener("click", function (e) {
+  console.log("checkbox function here");
   let target = e.target;
   let string = target.textContent;
   // when close/child is clicked

@@ -316,3 +316,11 @@ select {
 /* MOBILE h:320-400 */
 @media only screen and (max-width: 768px) {
 }
+
+/* micro-animation */
+.bodymovinanim {
+  width: 90%;
+  max-width: 50px;
+  margin-bottom: 30px;
+  border: blue 1px solid;
+}
