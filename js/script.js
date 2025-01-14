@@ -11,17 +11,6 @@ const masterList = document.querySelector("#masterList");
 
 const catInput = document.querySelector(".catInput");
 
-// micro-animation
-//Animation in infinite loop
-
-let svgContainer = document.querySelector(".bodymovinanim");
-let animItem = bodymovin.loadAnimation({
-  wrapper: svgContainer,
-  animType: "svg",
-  loop: true,
-  path: "https://raw.githubusercontent.com/thesvbd/Lottie-examples/master/assets/animations/loading.json",
-});
-
 // MODEL
 // globals
 let categories = ["general", "personal", "work"];
@@ -73,7 +62,7 @@ curState = false;
 calcAnalytics(list);
 renderCategorySelect(categories);
 renderfilterBy(categories, curState);
-renderList(list);
+// renderList(list);
 ////////////////////
 ////////////////////
 
@@ -123,7 +112,7 @@ function renderList(list) {
     // new html
     masterList.insertAdjacentHTML(
       "beforeend",
-      `<li class='${style}' data-cat='${el.category}'><span class="bodymovinanim">tick</span>
+      `<li class='${style}' data-cat='${el.category}'>
       ${el.task}
       <span class='close'></span></li>`
     );

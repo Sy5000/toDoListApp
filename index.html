@@ -9,10 +9,6 @@
     <!-- google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
-    
-    <!-- BM-player -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.5.3/lottie_svg.min.js" defer></script>
    
     <!-- scripts -->
     <script type="text/javascript" src="js/script.js" defer></script>
@@ -24,9 +20,7 @@
         <h1>Good morning, DaveMave.</h1>
        
         <p>You have <span id="analytics"></span> tasks completed.</p>
-
-        <div class="bodymovinanim"></div>
-        <p>^</p>
+    
         <div id="taskInputs">
           <div class="flex split">
             <input type="text" id="newUserTask" placeholder="add a new task" />
@@ -73,7 +67,26 @@
           <a href="#" onclick="filtersRemove()">view all</a>
         </div> -->
         <div>
+
+          <div id="checklist">
+            
+            <input id="123" type="checkbox" name="r" value="1" checked>
+            <label for="123">Bread</label>
+            <input id="234" type="checkbox" name="r" value="2">
+            <label for="234">Cheese</label>
+            <input id="345" type="checkbox" name="r" value="3">
+            <label for="345">Coffee</label>
+            <input id="456" type="checkbox" name="r" value="4" checked>
+            <label for="456">moleskine</label>
+          </div>
+
         <ul id="masterList">
+
+         <li class="" data-cat="">
+            <input id="567" type="checkbox" name="" value="" >
+            <label for="567" >test list item</label>
+          <span class="close"></span>
+         </li>
           <!-- <li>do a list</li> -->
           <!-- <li data-cat="misc">
             <span class="listItem checked">style test 001</span>
