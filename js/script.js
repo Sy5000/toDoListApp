@@ -28,22 +28,22 @@ let list = [
   {
     task: "buy apples",
     category: "general",
-    complete: true,
+    complete: false,
   },
   {
     task: "buy pens",
     category: "work",
-    complete: true,
+    complete: false,
   },
   {
     task: "buy laptop",
     category: "work",
-    complete: true,
+    complete: false,
   },
   {
     task: "buy ties",
     category: "work",
-    complete: true,
+    complete: false,
   },
   {
     task: "buy moleskine",
@@ -84,7 +84,7 @@ function renderCategorySelect(categories) {
 
 //  filters-list
 function renderfilterBy(categories, curState) {
-  console.log(curState);
+  console.log("current state var", curState);
   // existing html
   filtersSelect.innerHTML = "";
   // add active class
@@ -112,7 +112,13 @@ function renderList(list) {
     // new html
     masterList.insertAdjacentHTML(
       "beforeend",
-      `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      // `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
+      `<li class="li" data-cat="${el.category}">
+            <input id="${el.task}" type="checkbox" name="" value="" />
+            <label for="${el.task}">${el.task}</label>
+            <span class="close"></span>
+          </li>
+      `
     );
   });
 }
@@ -231,6 +237,42 @@ filtersSelect.addEventListener("click", function (e) {
   }
 });
 
+// grab rendered task list
+let elArray = document.querySelectorAll(".li");
+// add event listener to ea li
+elArray.forEach(function (el) {
+  el.addEventListener("click", function (e) {
+    let target = e.target;
+    let clickedArea = target.tagName;
+    // Toggle MODEL: list.complete.{BOOLEAN}
+    if (clickedArea === "LABEL") {
+      // Task Text
+      let string = target.textContent;
+
+      // MODEL;
+      list.forEach((el) => {
+        if (el.task.match(string)) {
+          // toggle boolean value
+          let curBool = el.complete;
+          el.complete = !curBool;
+        }
+      });
+      // VIEW
+      calcAnalytics(list);
+    }
+    // REMOVE BUTT
+    if (clickedArea === "SPAN") {
+      // remove from model
+      console.log("remove");
+    }
+    // guard
+    if (clickedArea === "LI" || "INPUT") {
+      return;
+    }
+  });
+});
+// console.log(elArray, "point?");
+
 // remove filters, update VIEWs
 // filtersRemove.addEventListener("click", function (e) {
 //   // MODEL
@@ -240,53 +282,56 @@ filtersSelect.addEventListener("click", function (e) {
 //   renderList(list);
 // });
 
-// toggle task status, remove tasks, spdate VIEWs
-masterList.addEventListener("click", function (e) {
-  let target = e.target;
-  let string = target.textContent;
-  // when close/child is clicked
-  let li = target.closest("li");
-  let liCategory = li.dataset.cat;
+// toggle task status, remove tasks, update VIEWs
 
-  // target list items
-  if (target.tagName === "LI") {
-    // VIEW
-    target.classList.toggle("checked");
-    // MODEL
-    list.forEach((el) => {
-      if (el.task.match(string)) {
-        // toggle boolean value
-        let curBool = el.complete;
-        el.complete = !curBool;
-      }
-    });
-  }
-  // target close buttons
-  if (target.classList.contains("close")) {
-    // MODEL - remove the task
-    list = list.filter((el) => el.task != li.textContent);
-    // check category/filter redundancy
-    // let categoryCount = list.filter((el) => el.category === liCategory);
+// masterList.addEventListener("click", function (e) {
+//   e.preventDefault;
+//   let target = e.target;
+//   let string = target.textContent;
+//   console.log(target, string);
+//   // when close/child is clicked
+//   let li = target.closest("li");
+//   let liCategory = li.dataset.cat;
 
-    // // VIEWs
-    // if (categoryCount.length === 0) {
-    //   //render filterBy with remove category method
-    //   let emptyCat = liCategory;
-    //   console.log(emptyCat, " < pass to renderFilterBy");
-    //   renderfilterBy(categories, curState, emptyCat);
-    // }
-    if (!curState) {
-      renderList(list);
-    }
-    if (curState) {
-      // HELPER
-      const filteredList = applyFilter(list, curState);
-      renderList(filteredList);
-    }
-  }
-  // VIEW
-  calcAnalytics(list);
-});
+//   // target list items
+//   if (target.tagName === "LI") {
+//     // VIEW
+//     target.classList.toggle("checked");
+//     // MODEL
+//     list.forEach((el) => {
+//       if (el.task.match(string)) {
+//         // toggle boolean value
+//         let curBool = el.complete;
+//         el.complete = !curBool;
+//       }
+//     });
+//   }
+//   // target close buttons
+//   if (target.classList.contains("close")) {
+//     // MODEL - remove the task
+//     list = list.filter((el) => el.task != li.textContent);
+//     // check category/filter redundancy
+//     // let categoryCount = list.filter((el) => el.category === liCategory);
+
+//     // // VIEWs
+//     // if (categoryCount.length === 0) {
+//     //   //render filterBy with remove category method
+//     //   let emptyCat = liCategory;
+//     //   console.log(emptyCat, " < pass to renderFilterBy");
+//     //   renderfilterBy(categories, curState, emptyCat);
+//     // }
+//     if (!curState) {
+//       renderList(list);
+//     }
+//     if (curState) {
+//       // HELPER
+//       const filteredList = applyFilter(list, curState);
+//       renderList(filteredList);
+//     }
+//   }
+//   // VIEW
+//   calcAnalytics(list);
+// });
 
 // HELPERS
 function applyFilter(list, curState) {
@@ -316,13 +361,13 @@ function updateDOM() {}
 // ✅ task input
 // ✅ display tasks
 //
-// ✅ custom category input
+//  custom category input
 // ✅ show custom cat in categories dropdown (hot reload data?)
 // ✅ show custom category as filters
 // ✅ filter list by custom categories (problem: event delagation for newly created buttons)
 //
-// ✅ toggle a task (complete/incomplete)
-// ✅ remove a task
+//  toggle a task (complete/incomplete)
+// remove a task
 // ✅ remove a category (auto or remove button?)
 //
 // persist tasks / custom cats / input data
@@ -348,8 +393,6 @@ function updateDOM() {}
 //
 // do not allow duplicate list items?
 
-//
-//
 // ✅ add x to filters
 // ✅ kill filter when x is clicked
 // display x when filter is empty
