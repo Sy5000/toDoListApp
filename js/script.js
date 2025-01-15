@@ -282,13 +282,10 @@ elArray.forEach(function (el) {
 //   renderList(list);
 // });
 
-// toggle task status, remove tasks, update VIEWs
-
+// toggle task status, remove tasks, spdate VIEWs
 // masterList.addEventListener("click", function (e) {
-//   e.preventDefault;
 //   let target = e.target;
 //   let string = target.textContent;
-//   console.log(target, string);
 //   // when close/child is clicked
 //   let li = target.closest("li");
 //   let liCategory = li.dataset.cat;
