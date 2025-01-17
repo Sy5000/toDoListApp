@@ -108,13 +108,14 @@ function renderList(list) {
   // model object
   list.forEach((el) => {
     // check task status
-    let style = el.complete === true ? "checked" : "";
+    let taskStatus = el.complete === true ? "checked" : "";
+
     // new html
     masterList.insertAdjacentHTML(
       "beforeend",
       // `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
       `<li class="li" data-cat="${el.category}">
-            <input id="${el.task}" type="checkbox" name="" value="" />
+            <input id="${el.task}" type="checkbox" name="taskStatus" ${taskStatus}/>
             <label for="${el.task}">${el.task}</label>
             <span class="close"></span>
           </li>
@@ -259,6 +260,8 @@ elArray.forEach(function (el) {
       });
       // VIEW
       calcAnalytics(list);
+      // toggle HTML checked attribute
+      // ...
     }
     // REMOVE BUTT
     if (clickedArea === "SPAN") {
@@ -363,10 +366,10 @@ function updateDOM() {}
 // ✅ show custom category as filters
 // ✅ filter list by custom categories (problem: event delagation for newly created buttons)
 //
-//  toggle a task (complete/incomplete)
+// ✅ toggle a task (complete/incomplete)
 // remove a task
 // ✅ remove a category (auto or remove button?)
-//
+//  disable animation on input click (checkbox area) OR make it trigger the calcAnalytics function too
 // persist tasks / custom cats / input data
 // logic to prompt when list is empty
 //
