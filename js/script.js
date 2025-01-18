@@ -1,6 +1,28 @@
 "use strict";
+/**
+ * ===================================================================
+ *
+ *  toDoListApp v1.0 Main JS
+ *
+ *  ------------------------------------------------------------------
+ *  TOC:
+ *  01. HTML Element selectors
+ *  02. Model - M.V.C ->data model
+ *  03. Views -M.V.C ->render HTML functions
+ *  04. Controllers -M.V.C ->program logic (update Model > render new views)
+ *  05. Helper functions
+ *  06. progress / notes
+ *
+ * ===================================================================
+ */
 
-// pointers
+/**
+ * ===================================================================
+ *  01. HTML Element selectors
+ *
+ *  ------------------------------------------------------------------
+ */
+
 const createTask = document.querySelector("#submitTask");
 const createCategory = document.querySelector("#submitCategory");
 const categoriesSelect = document.querySelector("#categories-select");
@@ -8,12 +30,18 @@ const filtersSelect = document.querySelector("#filters-select");
 // const filtersRemove = document.querySelector("#filters-remove");
 const analytics = document.querySelector("#analytics");
 const masterList = document.querySelector("#masterList");
-
 const catInput = document.querySelector(".catInput");
 
-// MODEL
-// globals
+/**
+ * ===================================================================
+ *  02. Data Model - global vars
+ *
+ *  ------------------------------------------------------------------
+ */
+
+// default 'category' values
 let categories = ["general", "personal", "work"];
+// list data
 let list = [
   {
     task: "create a list",
@@ -51,30 +79,48 @@ let list = [
     complete: true,
   },
 ];
+
 // list state
-//  user defined > category / filter selection;
+//  used to save filter selection (by category) &&
+//  toggle filter button css (active || '') &&
+//  render a filtered VIEW of list based on user choice
 let curState;
 
-////////////////////
-////////////////////
+/**
+ * ===================================================================
+ *  00.
+ *
+ *  ------------------------------------------------------------------
+ */
+
+//////////////////////////////////////////////////////////////////////
 // init app
+
 curState = false;
 calcAnalytics(list);
 renderCategorySelect(categories);
 renderfilterBy(categories, curState);
 renderList(list);
-////////////////////
-////////////////////
 
-////////////////////
-// VIEWs
-//  to-do-list
+//////////////////////////////////////////////////////////////////////
 
-//  categories-select-list
+/**
+ * ===================================================================
+ *  00. VIEWS - render HTML functions
+ *
+ *  ------------------------------------------------------------------
+ */
+
+// categories-select-list
+//  categories = Array
+
 function renderCategorySelect(categories) {
+  // new html
   categoriesSelect.innerHTML =
     "<option value=''>- please select a category -</option>";
+  // model
   categories.forEach((el) => {
+    // new html
     categoriesSelect.insertAdjacentHTML(
       "beforeend",
       `<option value="${el}">${el}</option>`
@@ -82,15 +128,17 @@ function renderCategorySelect(categories) {
   });
 }
 
-//  filters-list
-function renderfilterBy(categories, curState) {
-  console.log("current state var", curState);
-  // existing html
-  filtersSelect.innerHTML = "";
-  // add active class
-  categories.forEach((el) => {
-    let state = el === curState ? "active" : "";
+// filters-list
+//  categories = Array, curState = String
 
+function renderfilterBy(categories, curState) {
+  // remove html
+  filtersSelect.innerHTML = "";
+  // model
+  categories.forEach((el) => {
+    // is category 'active'
+    let state = el === curState ? "active" : "";
+    // new html
     filtersSelect.insertAdjacentHTML(
       "beforeend",
       `<div type='button' class='filter__button ${state}' data-cat='${el}'>
@@ -100,12 +148,19 @@ function renderfilterBy(categories, curState) {
     );
   });
 }
+
 //  master list
+//    list = Object
+
 function renderList(list) {
+  // ???
   // existing html (check for empty list)
   // masterList.innerHTML = list.length === 0 ? "<p>No tasks to show</p>" : "";
+  // ???
+
+  // remove html
   masterList.innerHTML = "";
-  // model object
+  // model
   list.forEach((el) => {
     // check task status
     let taskStatus = el.complete === true ? "checked" : "";
@@ -113,7 +168,6 @@ function renderList(list) {
     // new html
     masterList.insertAdjacentHTML(
       "beforeend",
-      // `<li class='${style}' data-cat='${el.category}'>${el.task}<span class='close'></span></li>`
       `<li class="li" data-cat="${el.category}">
             <input id="${el.task}" type="checkbox" name="taskStatus" ${taskStatus}/>
             <label for="${el.task}">${el.task}</label>
@@ -124,13 +178,20 @@ function renderList(list) {
   });
 }
 
+// toggle input el visibility
 function toggleAddCategory() {
   catInput.style.display =
     catInput.style.display === "block" ? "none" : "block";
 }
 
+/**
+ * ===================================================================
+ *  00. Controllers - Application Logic
+ *
+ *  ------------------------------------------------------------------
+ */
+
 ////////////////////
-// CONTROLLERs
 //  add task to list, update VIEWs
 createTask.addEventListener("click", () => {
   const task = document.querySelector("#newUserTask");
@@ -198,9 +259,7 @@ function listClearAll() {
   calcAnalytics(list);
 }
 //
-//------------------//
-// refactored to here
-//------------------//
+
 // filterBy list, remove filters, update VIEWs
 filtersSelect.addEventListener("click", function (e) {
   let target = e.target;
@@ -333,7 +392,13 @@ elArray.forEach(function (el) {
 //   calcAnalytics(list);
 // });
 
-// HELPERS
+/**
+ * ===================================================================
+ *  00. Helper functions
+ *
+ *  ------------------------------------------------------------------
+ */
+
 function applyFilter(list, curState) {
   return list.filter((el) => el.category === curState);
 }
@@ -355,45 +420,47 @@ function calcAnalytics(list) {
 
 function updateDOM() {}
 
-//
-// REQUIREMENTS
-//
-// ✅ task input
-// ✅ display tasks
-//
-//  custom category input
-// ✅ show custom cat in categories dropdown (hot reload data?)
-// ✅ show custom category as filters
-// ✅ filter list by custom categories (problem: event delagation for newly created buttons)
-//
-// ✅ toggle a task (complete/incomplete)
-// remove a task
-// ✅ remove a category (auto or remove button?)
-//  disable animation on input click (checkbox area) OR make it trigger the calcAnalytics function too
-// persist tasks / custom cats / input data
-// logic to prompt when list is empty
-//
-// ✅ task analytics
-// style + colour
-// media queries for basic min screeen sizes
-// - desk,
-// ✅ - lap
-// - tab
-// - phone
-// img / illustrations
-// micro-animations
-// loading page/animation
-
-// BUGS / extra functionality
-// ✅ add a task > update analytics in DOM
-// ✅ filter remove button calls renderList(list) without maintaining list state
-// ✅ listClearAll() > cannot remove remaining filters
-// ✅ create new cat before alllowing new <li>
-// sanitise task & category inputs. Dont allow user to execute code
-//
-// do not allow duplicate list items?
-
-// ✅ add x to filters
-// ✅ kill filter when x is clicked
-// display x when filter is empty
-// ✅ new function, read list, return empty cats, read filters, add x
+/**\
+ * ===================================================================
+ *  00. progress/notes
+ *
+ *  ------------------------------------------------------------------
+ *
+ * REQUIREMENTS
+ *
+ *   ✅ task input
+ *   ✅ display tasks
+ *   custom category input
+ *   ✅ show custom cat in categories dropdown (hot reload)
+ *   ✅ show custom category as filters
+ *   ✅ filter list by custom categories (problem: event delagation for newly created buttons)
+ *   ✅ toggle a task (complete/incomplete)
+ *   remove a task
+ *   ✅ remove a category (auto or remove button?)
+ *   ✅ task analytics
+ *   persist 'tasks / custom cats / input' data
+ *   logic to prompt when list is empty
+ *   media queries for basic min screeen sizes
+ *   - desk,
+ *   - tab,
+ *   - mob
+ *   img / illustrations
+ *   micro-animations
+ *   loading page/animation
+ *
+ *
+ * BUGS / extra functionality
+ *
+ *   ✅ filter remove button calls renderList(list) without maintaining list state
+ *   ✅ listClearAll() > cannot remove remaining filters
+ *   ✅ create new cat before alllowing new <li>
+ *   sanitise task & category inputs. Dont allow user to execute code
+ *   ✅ add x to filters
+ *   ✅ kill filter when x is clicked
+ *   only display x when filter is empty
+ *   do not allow duplicate list items?
+ *   checkbox && label click area (click area may be too small, sometimes updates VIEW but not MODEL leaving analytics, list and view mismatched)
+ *
+ *
+ * ===================================================================
+ **/
