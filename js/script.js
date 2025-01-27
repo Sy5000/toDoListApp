@@ -8,8 +8,8 @@
  *  TOC:
  *  01. HTML Element selectors
  *  02. Model - M.V.C ->data model
- *  03. Views -M.V.C ->render HTML functions
- *  04. Controllers -M.V.C ->program logic (update Model > render new views)
+ *  03. Views - M.V.C ->render HTML functions
+ *  04. Controllers - M.V.C ->program logic (update Model > render new views)
  *  05. Helper functions
  *  06. progress / notes
  *
@@ -41,7 +41,7 @@ const catInput = document.querySelector(".catInput");
 
 // default 'category' values
 let categories = ["general", "personal", "work"];
-// list data
+// default 'list' data
 let list = [
   {
     task: "create a list",
@@ -97,6 +97,8 @@ let curState;
 // init app
 
 curState = false;
+// localListObjectCheck(); // check client storage
+// localCatObjectCheck(); // check client storage
 calcAnalytics(list);
 renderCategorySelect(categories);
 renderfilterBy(categories, curState);
@@ -111,8 +113,9 @@ renderList(list);
  *  ------------------------------------------------------------------
  */
 
-// categories-select-list
-//  categories = Array
+//////////////////////////////////////////////////////////////////////
+//  categories-select-list
+//    categories = Array
 
 function renderCategorySelect(categories) {
   // new html
@@ -128,8 +131,9 @@ function renderCategorySelect(categories) {
   });
 }
 
-// filters-list
-//  categories = Array, curState = String
+//////////////////////////////////////////////////////////////////////
+//  filters-list
+//    categories = Array, curState = String
 
 function renderfilterBy(categories, curState) {
   // remove html
@@ -149,6 +153,7 @@ function renderfilterBy(categories, curState) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////
 //  master list
 //    list = Object
 
@@ -178,6 +183,7 @@ function renderList(list) {
   });
 }
 
+//////////////////////////////////////////////////////////////////////
 // toggle input el visibility
 function toggleAddCategory() {
   catInput.style.display =
@@ -191,8 +197,8 @@ function toggleAddCategory() {
  *  ------------------------------------------------------------------
  */
 
-////////////////////
-//  add task to list, update VIEWs
+//////////////////////////////////////////////////////////////////////
+// add task to list, update VIEWs
 createTask.addEventListener("click", () => {
   const task = document.querySelector("#newUserTask");
   const categorySelect = document.querySelector("#categories-select");
@@ -215,6 +221,8 @@ createTask.addEventListener("click", () => {
     complete: false,
   };
   list.unshift(newTask);
+  // persist data
+  storeListDataLocally(list);
   // VIEW
   renderList(list);
   calcAnalytics(list);
@@ -224,6 +232,7 @@ createTask.addEventListener("click", () => {
   task.value = categorySelect.value = "";
 });
 
+//////////////////////////////////////////////////////////////////////
 //  add a custom cat, update VIEWs
 createCategory.addEventListener("click", () => {
   const category = document.querySelector("#newUserCat");
@@ -235,6 +244,7 @@ createCategory.addEventListener("click", () => {
   if (newCategory !== "") {
     // MODEL
     categories.push(newCategory);
+    storeCatDataLocally(categories);
     // VIEW
     category.value = "";
     renderCategorySelect(categories);
@@ -242,6 +252,7 @@ createCategory.addEventListener("click", () => {
   }
 });
 
+//////////////////////////////////////////////////////////////////////
 // remove filter selection
 function filtersRemove() {
   // MODEL
@@ -258,8 +269,8 @@ function listClearAll() {
   renderList(list);
   calcAnalytics(list);
 }
-//
 
+//////////////////////////////////////////////////////////////////////
 // filterBy list, remove filters, update VIEWs
 filtersSelect.addEventListener("click", function (e) {
   let target = e.target;
@@ -296,43 +307,98 @@ filtersSelect.addEventListener("click", function (e) {
     renderList(filteredList);
   }
 });
+//
+//////////////////////////////////////////////////////////////////////
+// task list, remove task, update VIEWs
+masterList.addEventListener("click", function (e) {
+  // vars
+  let target = e.target;
+  let clickedArea = target.tagName;
 
-// grab rendered task list
-let elArray = document.querySelectorAll(".li");
-// add event listener to ea li
-elArray.forEach(function (el) {
-  el.addEventListener("click", function (e) {
-    let target = e.target;
-    let clickedArea = target.tagName;
-    // Toggle MODEL: list.complete.{BOOLEAN}
-    if (clickedArea === "LABEL") {
-      // Task Text
-      let string = target.textContent;
-
-      // MODEL;
-      list.forEach((el) => {
-        if (el.task.match(string)) {
-          // toggle boolean value
-          let curBool = el.complete;
-          el.complete = !curBool;
-        }
-      });
-      // VIEW
-      calcAnalytics(list);
-      // toggle HTML checked attribute
-      // ...
-    }
-    // REMOVE BUTT
-    if (clickedArea === "SPAN") {
-      // remove from model
-      console.log("remove");
-    }
-    // guard
-    if (clickedArea === "LI" || "INPUT") {
-      return;
-    }
-  });
+  // Toggle MODEL: list.complete.{BOOLEAN}
+  if (clickedArea === "LABEL") {
+    // Task Text
+    let string = target.textContent;
+    // MODEL;
+    list.forEach((el) => {
+      if (el.task.match(string)) {
+        // toggle boolean value
+        let curBool = el.complete;
+        el.complete = !curBool;
+      }
+    });
+  }
+  // Remove task item
+  if (clickedArea === "SPAN") {
+    const taskString = target.parentElement.textContent.trim();
+    console.log(taskString, "remove logic");
+    list = list.filter((el) => el.task != taskString);
+    renderList(list);
+  }
+  // guard
+  if (clickedArea === "LI" || "INPUT") {
+    return;
+  }
 });
+
+// /////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////
+
+// event listener on li will dissapear on re render
+// grab rendered task list
+// let elArray = document.querySelectorAll(".li");
+// // add event listener to ea li
+// elArray.forEach(function (el) {
+//   el.addEventListener("click", function (e) {
+//     let target = e.target;
+//     let clickedArea = target.tagName;
+//     // Toggle MODEL: list.complete.{BOOLEAN}
+//     if (clickedArea === "LABEL") {
+//       // Task Text
+//       let string = target.textContent;
+
+//       // MODEL;
+//       list.forEach((el) => {
+//         if (el.task.match(string)) {
+//           // toggle boolean value
+//           let curBool = el.complete;
+//           el.complete = !curBool;
+//         }
+//       });
+//       // VIEW
+//       calcAnalytics(list);
+//       // toggle HTML checked attribute
+//       // ...
+//     }
+//     // REMOVE BUTT
+//     if (clickedArea === "SPAN") {
+//       console.log("click");
+//       const taskString = this.textContent.trim();
+//       list = list.filter((el) => el.task != taskString);
+//       console.log(list);
+//       renderList(list);
+//       // event listener again???
+//       elArray = document.querySelectorAll(".li");
+
+//       // remove from model
+//       // console.log("remove from model and update view", this);
+//       // console.log("clicked", list);
+//       // const taskText = this.textContent.trim();
+//       // list = list.filter((el) => el.task != taskText);
+//       // // VIEW
+//       // renderList(list);
+//     }
+//     // guard
+//     if (clickedArea === "LI" || "INPUT") {
+//       return;
+//     }
+//   });
+// });
+// /////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////
+
 // console.log(elArray, "point?");
 
 // remove filters, update VIEWs
@@ -399,10 +465,49 @@ elArray.forEach(function (el) {
  *  ------------------------------------------------------------------
  */
 
+// check client for local saved data && retreive
+// function localListObjectCheck() {
+//   // model - list
+//   if (localStorage.getItem("list")) {
+//     const localListString = localStorage.getItem("list");
+//     list = JSON.parse(localListString);
+//     return list;
+//   }
+// }
+// function localCatObjectCheck() {
+//   // model - categories
+//   if (localStorage.getItem("categories")) {
+//     const localCatString = localStorage.getItem("categories");
+//     categories = JSON.parse(localCatString);
+//     return categories;
+//   }
+// }
+// // store new data locally
+// function storeListDataLocally(modelData) {
+//   // convert to string
+//   const toStore = JSON.stringify(modelData);
+
+//   localStorage.removeItem(modelData); // remove old list data
+//   localStorage.setItem("list", toStore); // update model
+// }
+
+// function storeCatDataLocally(modelData) {
+//   // convert to string
+//   const toStore = JSON.stringify(modelData);
+//   localStorage.removeItem(modelData);
+//   localStorage.setItem("categories", toStore);
+// }
+
+// count completed tasks
+function calcAnalytics(list) {
+  let complete = list.filter((el) => el.complete === true);
+  analytics.innerHTML = complete.length + " / " + list.length;
+}
+// add css to clicked filer butts
 function applyFilter(list, curState) {
   return list.filter((el) => el.category === curState);
 }
-
+// ???
 function auditList(list, cat) {
   let count = 0;
   list.forEach((el) => {
@@ -411,11 +516,6 @@ function auditList(list, cat) {
     }
   });
   return count;
-}
-
-function calcAnalytics(list) {
-  let complete = list.filter((el) => el.complete === true);
-  analytics.innerHTML = complete.length + " / " + list.length;
 }
 
 function updateDOM() {}
@@ -428,6 +528,7 @@ function updateDOM() {}
  *
  * REQUIREMENTS
  *
+ *   edit / save localy username
  *   ✅ task input
  *   ✅ display tasks
  *   custom category input
@@ -435,10 +536,12 @@ function updateDOM() {}
  *   ✅ show custom category as filters
  *   ✅ filter list by custom categories (problem: event delagation for newly created buttons)
  *   ✅ toggle a task (complete/incomplete)
- *   remove a task
+ *   ✅ remove a task
  *   ✅ remove a category (auto or remove button?)
  *   ✅ task analytics
- *   persist 'tasks / custom cats / input' data
+ *   ✅ persist 'tasks' input data
+ *   ✅ persist ' custom cats' input data
+ *   persist checked / unchecked tasks ???
  *   logic to prompt when list is empty
  *   media queries for basic min screeen sizes
  *   - desk,
@@ -447,7 +550,7 @@ function updateDOM() {}
  *   img / illustrations
  *   micro-animations
  *   loading page/animation
- *
+ *   hosting demo on pages
  *
  * BUGS / extra functionality
  *
